@@ -27,3 +27,4 @@ jobs:
       - run: npm i -g snyk
       - run: snyk auth ${{ secrets.SNYK_TOKEN }}
       - run: snyk monitor --all-projects --target-reference="github" --org="5690300c-467c-4cd8-b92e-3ca127000edf"
+      - run: snyk code test --report --project-name="github" --org="5690300c-467c-4cd8-b92e-3ca127000edf"
