@@ -1,36 +1,29 @@
-name: Snyk SCA, Code, IaC and Container CLI monitor example
-	
-	on:
-	  push:
-	    branches: [ main ]
-	
-	jobs:
-	  build:
-	    name: Test and build
-	    environment: snyk-npm
-	    runs-on: ubuntu-latest
-	
-	    strategy:
-	      matrix:
-	        node-version: [16.x]
-	        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+name: Node.js CI
 
-	    steps:
-	    - uses: actions/checkout@v2
-	    - name: Use Node.js ${{ matrix.node-version }}
-	      uses: actions/setup-node@v2
-	      with:
-	        node-version: ${{ matrix.node-version }}
-	        cache: 'npm'
-	        
-	    - name: Setup Snyk + snyk-to-html
-	      run: |
-	        npm install snyk -g
-	        npm install snyk-to-html -g
-	        snyk auth ${{secrets.SNYK_TOKEN}}
-	    - name: Snyk Open Source # For testing and failing please add snyk test before snyk cmonitor
-	      run: |
-	        snyk monitor
-	    - name: Snyk Code # Remove || true to fail if there are vulnerabilities
-	      run: |
-	        snyk code test || true 
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm install
+      - run: npm i -g snyk
+      - run: snyk auth ${{ secrets.SNYK_TOKEN }}
+      - run: snyk monitor --all-projects --target-reference="github" --org="5690300c-467c-4cd8-b92e-3ca127000edf"
